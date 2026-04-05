@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Notes Summarizer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>🤖 AI Notes Summarizer</h1>
+
+  <textarea id="inputText" placeholder="Paste your notes here..."></textarea>
+
+  <div class="buttons">
+    <button onclick="summarize()">Summarize</button>
+    <button onclick="generateQuestions()">Generate Questions</button>
+  </div>
+
+  <div id="loading" class="hidden">⚡ AI is thinking...</div>
+
+  <div id="output"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

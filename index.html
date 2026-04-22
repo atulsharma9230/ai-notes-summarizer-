@@ -1,26 +1,240 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AI Notes Summarizer</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS — AI Study Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-  <h1>🤖 AI Notes Summarizer</h1>
+  <!-- Cursor Elements -->
+  <div id="cursor-ring"></div>
+  <div id="cursor-dot"></div>
+  <canvas id="bg-canvas"></canvas>
 
-  <textarea id="inputText" placeholder="Paste your notes here..."></textarea>
+  <!-- Mobile Menu Toggle -->
+  <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 
-  <div class="buttons">
-    <button onclick="summarize()">Summarize</button>
-    <button onclick="generateQuestions()">Generate Questions</button>
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-mark">N</div>
+        <div class="logo-text">
+          <span class="logo-title">NEXUS</span>
+          <span class="logo-sub">AI Intelligence</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-label">WORKSPACE</span>
+        <button class="nav-btn active" onclick="showSection('chat')" id="chatBtn" data-section="chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          AI Chat
+          <span class="nav-badge">Live</span>
+        </button>
+        <button class="nav-btn" onclick="showSection('notes')" id="notesBtn" data-section="notes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          AI Notes
+        </button>
+        <button class="nav-btn" onclick="showSection('progress')" id="progressBtn" data-section="progress">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Progress
+        </button>
+        <button class="nav-btn" onclick="showSection('music')" id="musicBtn" data-section="music">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+          Focus Music
+        </button>
+      </div>
+
+      <div class="nav-group nav-bottom">
+        <button class="nav-btn" onclick="clearChat()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          Clear Chat
+        </button>
+        <button class="nav-btn" onclick="toggleTheme()" id="themeBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          Toggle Theme
+        </button>
+      </div>
+
+      <!-- Sidebar status indicator -->
+      <div class="sidebar-status">
+        <div class="status-dot"></div>
+        <span>System Online</span>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+
+      <!-- CHAT SECTION -->
+      <div id="chat" class="section active">
+        <div class="section-header">
+          <h1>AI <span class="accent">Chat</span></h1>
+          <p class="section-desc">Your intelligent study companion</p>
+        </div>
+        <div class="card chat-card">
+          <div id="chatBox">
+            <div class="chat-welcome">
+              <div class="welcome-icon">◈</div>
+              <h3>NEXUS Intelligence Ready</h3>
+              <p>Ask me anything. I can explain concepts, quiz you, summarize topics, or help you study smarter.</p>
+            </div>
+          </div>
+          <div class="input-area">
+            <div class="textarea-wrap">
+              <textarea id="inputText" placeholder="Ask me anything about your studies..." rows="1" onkeydown="handleEnter(event)" oninput="autoResize(this)"></textarea>
+            </div>
+            <button class="send-btn" onelick="sendMessage()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTES SECTION -->
+      <div id="notes" class="section hidden">
+        <div class="section-header">
+          <h1>AI <span class="accent">Notes</span></h1>
+          <p class="section-desc">Upload files for instant AI summarization</p>
+        </div>
+        <div class="card">
+          <div id="aiUploadZone" class="ai-upload-zone" 
+               ondragover="handleDragOver(event)"
+               ondragleave="handleDragLeave(event)"
+               ondrop="handleAiDrop(event)">
+            <div class="upload-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            </div>
+            <h3>Drop your file here</h3>
+            <p>Supports PDF · TXT · DOCX · Images</p>
+            <input type="file" id="aiFileInput" accept=".pdf,.txt,.docx,.doc,.png,.jpg,.jpeg" hidden onchange="handleAiFiles(event)">
+            <button class="upload-trigger" onclick="document.getElementById('aiFileInput').click()">
+              Choose File
+            </button>
+          </div>
+
+          <div id="aiSummaryContainer" class="ai-summary hidden">
+            <div class="summary-header">
+              <h3>
+                <span class="pulse-dot"></span>
+                AI Summary
+              </h3>
+              <div class="summary-actions">
+                <button onclick="copySummary()" class="action-btn copy-btn">Copy</button>
+                <button onclick="saveSummary()" class="action-btn save-btn">Save</button>
+              </div>
+            </div>
+            <div id="aiSummary" class="summary-content"></div>
+          </div>
+
+          <div class="recent-notes-section">
+            <h4 class="recent-title">Recent Notes</h4>
+            <div id="recentNotes" class="recent-notes-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS SECTION -->
+      <div id="progress" class="section hidden">
+        <div class="section-header">
+          <h1>Study <span class="accent">Progress</span></h1>
+          <p class="section-desc">Track your learning journey</p>
+        </div>
+        <div class="card">
+          <div class="progress-header">
+            <div class="progress-category" id="currentCategory">
+              <span class="cat-label">ACTIVE SUBJECT</span>
+              <span class="cat-name" id="catName">General</span>
+            </div>
+            <div class="progress-pct" id="progressPct">30%</div>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill-bar" id="progressFill" style="width: 30%"></div>
+            <div class="progress-markers">
+              <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+            </div>
+          </div>
+
+          <div class="progress-actions">
+            <button onclick="increaseProgress()" class="prog-btn primary">+ 10%</button>
+            <button onclick="decreaseProgress()" class="prog-btn">− 10%</button>
+            <button onclick="resetProgress()" class="prog-btn danger">Reset</button>
+          </div>
+
+          <div class="subject-grid">
+            <button onclick="setCategory('Math')" class="subject-btn" data-subj="Math">
+              <span class="subj-icon">∑</span>Math
+            </button>
+            <button onclick="setCategory('Science')" class="subject-btn" data-subj="Science">
+              <span class="subj-icon">⚛</span>Science
+            </button>
+            <button onclick="setCategory('Coding')" class="subject-btn" data-subj="Coding">
+              <span class="subj-icon">&lt;/&gt;</span>Coding
+            </button>
+            <button onclick="setCategory('History')" class="subject-btn" data-subj="History">
+              <span class="subj-icon">📜</span>History
+            </button>
+            <button onclick="setCategory('Language')" class="subject-btn" data-subj="Language">
+              <span class="subj-icon">Aa</span>Language
+            </button>
+            <button onclick="setCategory('Art')" class="subject-btn" data-subj="Art">
+              <span class="subj-icon">◉</span>Art
+            </button>
+          </div>
+
+          <div id="quoteBox" class="quote-block"></div>
+        </div>
+      </div>
+
+      <!-- MUSIC SECTION -->
+      <div id="music" class="section hidden">
+        <div class="section-header">
+          <h1>Focus <span class="accent">Music</span></h1>
+          <p class="section-desc">Ambient sounds for deep work</p>
+        </div>
+        <div class="card music-card">
+          <div class="vinyl-wrap">
+            <div class="vinyl" id="vinyl">
+              <div class="vinyl-center">◈</div>
+            </div>
+          </div>
+          <div class="track-info">
+            <div class="track-name">Lo-Fi Study Beats</div>
+            <div class="track-artist">NEXUS Radio · Focus Mode</div>
+          </div>
+          <div class="visualizer" id="visualizer">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          </div>
+          <button class="play-btn" id="musicToggle" onclick="toggleMusic()">
+            <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <audio id="musicPlayer" loop preload="metadata">
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+          </audio>
+          <p class="music-note">Lo-fi beats engineered for deep focus ✦</p>
+        </div>
+      </div>
+
+    </main>
   </div>
 
-  <div id="loading" class="hidden">⚡ AI is thinking...</div>
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
 
-  <div id="output"></div>
-</div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

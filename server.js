@@ -26,6 +26,7 @@ const upload = multer({
 const hf = new InferenceClient(process.env.HUGGINGFACE_API_KEY);
 
 app.use(cors());
+app.use(express.static(__dirname));
 app.use(express.json({ limit: '10mb' }));
 app.use((req, res, next) => {
   console.log(`➡️ ${req.method} ${req.url}`);
@@ -33,8 +34,10 @@ app.use((req, res, next) => {
 });
 
 // ✅ HEALTH CHECK
+const path = require('path');
+
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'Server running 🚀' });
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ✅ CHAT ROUTE

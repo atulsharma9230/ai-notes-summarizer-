@@ -4,7 +4,7 @@ console.log("✅ script.js loaded");
 // ─── CONFIG ───────────────────────────────────
 // BUG FIX #4 & #5: all fetch calls were hardcoded to localhost.
 // Change this one constant if you deploy the server elsewhere.
-const BASE_URL = 'http://127.0.0.1:3000';
+
 
 // ─── STATE ───────────────────────────────────
 let currentSummary = '';
@@ -99,7 +99,7 @@ function createParticleBurst(x, y) {
       x: Math.random() * W, y: Math.random() * H,
       vx: (Math.random() - 0.5) * 0.3,
       vy: (Math.random() - 0.5) * 0.3,
-      r: Math.random() * 1.5 + 0.5
+      r: Math.random() * 1.5 + 0.5,
     }));
   }
 
@@ -285,15 +285,13 @@ function escapeHtml(str) {
 
 // ─── API HELPERS ──────────────────────────────
 // BUG FIX #4: was hardcoded 'http://localhost:3000/chat' — now uses BASE_URL
-async function callClaude(messages, systemPrompt = '') {
-    console.log("📤 Sending /chat request", { messages, systemPrompt });
-  const response = await fetch(`${BASE_URL}/chat`, {
+async function callClaude(messages, system ) {
+    console.log("📤 Sending /chat request", { messages, system });
+  const response = await fetch(`/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      messages: messages,        // ✅ FIXED
-      system: systemPrompt       // ✅ FIXED
-    })
+      messages,system})
   });
 
     console.log("📥 /chat status:", response.status);
@@ -310,9 +308,8 @@ async function callClaude(messages, systemPrompt = '') {
   return data.reply; // ✅ IMPORTANT
 }
 
-// BUG FIX #5: was hardcoded 'http://localhost:3000/summarize' — now uses BASE_URL
 async function aiSummarizeText(text) {
-  const response = await fetch(`${BASE_URL}/summarize`, {
+  const response = await fetch(`/summarize`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text })
@@ -373,7 +370,7 @@ async function processAiUpload(file) {
 const formData = new FormData();
 formData.append('file', file);
 
-const uploadRes = await fetch(`${BASE_URL}/upload`, {
+const uploadRes = await fetch(`/upload`, {
   method: 'POST',
   body: formData
 });

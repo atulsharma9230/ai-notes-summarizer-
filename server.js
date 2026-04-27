@@ -56,7 +56,7 @@ app.post('/chat', async (req, res) => {
     console.log('🤖 Sending request to Hugging Face...');
 
     const response = await hf.chatCompletion({
-      model: 'meta-llama/Llama-3-8b-Instruct', // ✅ better model
+      model: 'mistralai/Mistral-7B-Instruct-v0.2', // ✅ better model
       messages: [
         {
           role: 'system',
@@ -100,7 +100,7 @@ app.post('/summarize', async (req, res) => {
     console.log("📄 Text length:", text.length);
 
     const response = await hf.chatCompletion({
-      model: 'meta-llama/Llama-3-8b-Instruct',
+      model: 'mistralai/Mistral-7B-Instruct-v0.2',
       messages: [
         { role: 'system', content: 'Summarize in 3-5 bullet points' },
         { role: 'user', content: text.slice(0, 3000) }

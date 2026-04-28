@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 3000;
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10 MB
+  limits: { fileSize: 25 * 1024 * 1024 } // 10 MB
 });
 
 const hf = new InferenceClient(process.env.HUGGINGFACE_API_KEY);
@@ -41,52 +41,59 @@ app.get('/', (req, res) => {
 });
 
 // ✅ CHAT ROUTE
-app.post('/chat', async (req, res) => {
-  console.log('📩 /chat route hit');
-  console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
-
-  const { messages, system } = req.body;
-
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    console.log('❌ Invalid messages array');
-    return res.status(400).json({ error: 'messages array is required.' });
+app.post('/upload', upload.single('file'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
-    console.log('🤖 Sending request to Hugging Face...');
-
-    const response = await hf.chatCompletion({
-      provider: "auto",
-      model: "meta-llama/Llama-3.1-8B-Instruct", // ✅ better model
-      messages: [
-        {
-          role: 'system',
-          content: system || 'You are a helpful AI assistant.'
-        },
-        ...messages
-      ],
-      max_tokens: 500,
-      temperature: 0.7
+    console.log('📂 File received:', {
+      name: req.file.originalname,
+      type: req.file.mimetype,
+      size: req.file.size
     });
 
-    console.log('✅ Raw HF response:', JSON.stringify(response, null, 2));
+    let text = '';
 
-    if (!response || !response.choices || !response.choices.length) {
-      throw new Error('Invalid response from AI');
+    if (req.file.mimetype === 'text/plain') {
+      text = req.file.buffer.toString('utf-8');
+    } 
+    
+    else if (
+      req.file.mimetype === 'application/pdf' ||
+      req.file.originalname.toLowerCase().endsWith('.pdf')
+    ) {
+      try {
+        const data = await pdfParse(req.file.buffer);
+        text = data.text || '';
+      } catch (pdfErr) {
+        console.error('❌ PDF Parse Error:', pdfErr);
+        return res.status(400).json({
+          error: 'PDF could not be read. Try uploading a text-based PDF or TXT file.'
+        });
+      }
+    } 
+    
+    else {
+      return res.status(400).json({
+        error: 'Only TXT and PDF files are supported right now.'
+      });
     }
 
-    const replyText = response.choices[0].message.content;
+    if (!text || !text.trim()) {
+      return res.status(400).json({
+        error: 'No readable text found. Scanned/image PDFs are not supported.'
+      });
+    }
 
-    res.json({ reply: replyText });
+    console.log('📄 Extracted text preview:', text.slice(0, 300));
+
+    res.json({ text });
 
   } catch (err) {
-    console.error('❌ FULL CHAT ERROR:', err);
-    console.error("❌ STATUS:", err.status);
-    console.error("❌ RESPONSE:", JSON.stringify(err.response || err.cause || err, null, 2));
-
+    console.error('❌ Upload Error:', err);
     res.status(500).json({
-      error: err.message || 'Server error',
-      reply: '⚠️ AI temporarily unavailable. Please try again.'
+      error: err.message || 'Failed to process file'
     });
   }
 });

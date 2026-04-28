@@ -375,7 +375,13 @@ const uploadRes = await fetch(`/upload`, {
   body: formData
 });
 
-const uploadData = await uploadRes.json();
+let uploadData;
+
+try {
+  uploadData = await uploadRes.json();
+} catch {
+  throw new Error("Server returned invalid response");
+}
 
 if (!uploadRes.ok) {
   throw new Error(uploadData.error || 'Upload failed');

@@ -76,7 +76,7 @@ app.post('/chat', async (req, res) => {
 
     const reply = response.choices[0].message.content;
 
-    res.json({ reply });
+    res.json({ reply: replyText });
 
   } catch (err) {
     console.error('❌ FULL CHAT ERROR:', err);

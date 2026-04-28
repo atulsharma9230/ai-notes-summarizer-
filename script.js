@@ -220,7 +220,7 @@ async function sendMessage() {
   appendTyping(typingId);
 
   try {
-    const response = await callClaude(
+    const response = await callAI(
       [{ role: 'user', content: text }],
       'You are NEXUS, a futuristic AI study assistant. Be concise, helpful, and encouraging. Use clear explanations. Your tone is intelligent but friendly.'
     );
@@ -285,7 +285,7 @@ function escapeHtml(str) {
 
 // ─── API HELPERS ──────────────────────────────
 // BUG FIX #4: was hardcoded 'http://localhost:3000/chat' — now uses BASE_URL
-async function callClaude(messages, system ) {
+async function callAI(messages, system ) {
     console.log("📤 Sending /chat request", { messages, system });
   const response = await fetch(`/chat`, {
     method: 'POST',

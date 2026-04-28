@@ -56,7 +56,8 @@ app.post('/chat', async (req, res) => {
     console.log('🤖 Sending request to Hugging Face...');
 
     const response = await hf.chatCompletion({
-      model: 'HuggingFaceH4/zephyr-7b-beta', // ✅ better model
+      provider: "auto",
+      model: "meta-llama/Llama-3.1-8B-Instruct", // ✅ better model
       messages: [
         {
           role: 'system',
@@ -80,6 +81,8 @@ app.post('/chat', async (req, res) => {
 
   } catch (err) {
     console.error('❌ FULL CHAT ERROR:', err);
+    console.error("❌ STATUS:", err.status);
+    console.error("❌ RESPONSE:", JSON.stringify(err.response || err.cause || err, null, 2));
 
     res.status(500).json({
       error: err.message || 'Server error',
@@ -100,7 +103,8 @@ app.post('/summarize', async (req, res) => {
     console.log("📄 Text length:", text.length);
 
     const response = await hf.chatCompletion({
-     model: 'HuggingFaceH4/zephyr-7b-beta',
+     provider: "auto",
+     model: "meta-llama/Llama-3.1-8B-Instruct",
       messages: [
         { role: 'system', content: 'Summarize in 3-5 bullet points' },
         { role: 'user', content: text.slice(0, 3000) }

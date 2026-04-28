@@ -56,7 +56,7 @@ app.post('/chat', async (req, res) => {
     console.log('🤖 Sending request to Hugging Face...');
 
     const response = await hf.chatCompletion({
-      model: 'mistralai/Mistral-7B-Instruct-v0.2', // ✅ better model
+      model: 'HuggingFaceH4/zephyr-7b-beta', // ✅ better model
       messages: [
         {
           role: 'system',
@@ -74,7 +74,7 @@ app.post('/chat', async (req, res) => {
       throw new Error('Invalid response from AI');
     }
 
-    const reply = response.choices[0].message.content;
+    const replyText = response.choices[0].message.content;
 
     res.json({ reply: replyText });
 
@@ -100,7 +100,7 @@ app.post('/summarize', async (req, res) => {
     console.log("📄 Text length:", text.length);
 
     const response = await hf.chatCompletion({
-      model: 'mistralai/Mistral-7B-Instruct-v0.2',
+     model: 'HuggingFaceH4/zephyr-7b-beta',
       messages: [
         { role: 'system', content: 'Summarize in 3-5 bullet points' },
         { role: 'user', content: text.slice(0, 3000) }
